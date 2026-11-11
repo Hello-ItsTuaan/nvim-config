@@ -9,7 +9,7 @@ return {
     opts = {
       smear_insert_mode = false,
 
-      -- ? Why this exists: stiffness thấp = con trỏ đuổi chậm hơn = vệt kéo dài hơn
+      -- ? Why this exists: stiffness thấp = con trỏ đuổi chậm hơn = vệt kéo dài hơn 
       -- TODO: thấy chưa rõ thì giảm tiếp (0.4, 0.3), thấy lề mề thì tăng lại
       stiffness = 0.5,
       trailing_stiffness = 0.3,
