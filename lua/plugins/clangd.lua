@@ -2,22 +2,27 @@
 -- | CLANGD FIX | lua/plugins/clangd.lua
 -- ─────────────────────────────────────────
 
--- ! IMPORTANT: dùng clangd của MSYS2, KHÔNG dùng bản của Mason nữa
--- ? Why this exists: clangd của Mason theo kiểu MSVC nên không tìm ra
---   header MinGW; clangd của MSYS2 thì tự biết.
--- WARNING: nếu cài MSYS2 ở chỗ khác thì phải đổi lại path
 return {
   {
     "neovim/nvim-lspconfig",
+    init = function()
+      vim.diagnostic.config({
+        update_in_insert = true,
+        underline = true,
+        signs = true,
+      })
+    end,
     opts = {
       servers = {
         clangd = {
           mason = false,
+          capabilities = require("blink.cmp").get_lsp_capabilities(),
           cmd = {
-            "C:/msys64/mingw64/bin/clangd.exe",
+            "clangd",
             "--background-index",
             "--clang-tidy",
-            "--query-driver=C:/msys64/mingw64/bin/*",
+            "--all-scopes-completion",
+            "--completion-style=detailed",
           },
         },
       },

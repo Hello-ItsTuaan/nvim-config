@@ -5,17 +5,15 @@
 -- ---------------------------------------------
 -- | COMPILE AND RUN C++ (F5)                  |
 -- ---------------------------------------------
--- ? Why this exists: one key = save + build + run, no need to leave nvim
--- ! IMPORTANT: start nvim from a terminal that loaded the VS environment
--- TODO: remove -IC:/cpinclude if you do not use the fake bits/stdc++.h
+-- One key saves, builds, and runs the current C++ file.
 vim.keymap.set("n", "<F5>", function()
   vim.cmd("write")
 
   local file = vim.fn.expand("%:p")
-  local exe = vim.fn.expand("%:p:r") .. ".exe"
+  local exe = vim.fn.expand("%:p:r")
 
   local cmd = string.format(
-    'clang++ -std=c++17 -IC:/cpinclude "%s" -o "%s" && "%s"',
+    'clang++ -std=c++17 "%s" -o "%s" && "%s"',
     file, exe, exe
   )
 

@@ -7,12 +7,12 @@ return {
     },
     config = function()
       require("tabout").setup({
-        tabkey = "<Tab>",
-        backwards_tabkey = "<S-Tab>",
+        tabkey = "",
+        backwards_tabkey = "",
         act_as_tab = true,
         act_as_shift_tab = false,
         enable_backwards = true,
-        completion = false,
+        completion = true,
         tabouts = {
           { open = "'", close = "'" },
           { open = '"', close = '"' },
@@ -23,6 +23,51 @@ return {
         },
         ignore_beginning = true,
         exclude = {},
+      })
+
+      local function exclude_without_parser(args)
+        local filetype = vim.bo[args.buf].filetype
+        if filetype == "" then
+          return
+        end
+
+        local has_parser = pcall(vim.treesitter.get_parser, args.buf)
+        if not has_parser then
+          local options = require("tabout.config").options
+          if not vim.tbl_contains(options.exclude, filetype) then
+            table.insert(options.exclude, filetype)
+          end
+        end
+      end
+
+      vim.api.nvim_create_autocmd({ "BufEnter", "FileType" }, {
+        callback = exclude_without_parser,
+      })
+
+      vim.api.nvim_create_autocmd({ "BufEnter", "InsertEnter" }, {
+        callback = function(args)
+          vim.schedule(function()
+            if not vim.api.nvim_buf_is_valid(args.buf) then
+              return
+            end
+
+            vim.keymap.set("i", "<Tab>", function()
+              local cmp = require("blink.cmp")
+              if cmp.is_visible() then
+                return cmp.select_and_accept()
+              end
+              require("tabout").tabout()
+            end, { buffer = args.buf, silent = true })
+
+            vim.keymap.set("i", "<S-Tab>", function()
+              local cmp = require("blink.cmp")
+              if cmp.is_visible() then
+                return cmp.select_prev()
+              end
+              require("tabout").taboutBack()
+            end, { buffer = args.buf, silent = true })
+          end)
+        end,
       })
     end,
   },
