@@ -3,7 +3,15 @@ return {
     "abecodes/tabout.nvim",
     lazy = false,
     dependencies = {
-      "nvim-treesitter/nvim-treesitter",
+      {
+        "nvim-treesitter/nvim-treesitter",
+        opts = function(_, opts)
+          opts.ensure_installed = opts.ensure_installed or {}
+          if not vim.tbl_contains(opts.ensure_installed, "cpp") then
+            table.insert(opts.ensure_installed, "cpp")
+          end
+        end,
+      },
     },
     config = function()
       require("tabout").setup({
@@ -53,7 +61,14 @@ return {
 
             vim.keymap.set("i", "<Tab>", function()
               local cmp = require("blink.cmp")
-              if cmp.is_visible() then
+              local col = vim.fn.col(".")
+              local line = vim.api.nvim_get_current_line()
+              local next_char = line:sub(col, col)
+              if next_char:match("[%)%]}\"'`]") then
+                require("tabout").tabout()
+                return
+              end
+              if cmp.is_menu_visible() then
                 return cmp.select_and_accept()
               end
               require("tabout").tabout()
@@ -61,7 +76,7 @@ return {
 
             vim.keymap.set("i", "<S-Tab>", function()
               local cmp = require("blink.cmp")
-              if cmp.is_visible() then
+              if cmp.is_menu_visible() then
                 return cmp.select_prev()
               end
               require("tabout").taboutBack()
